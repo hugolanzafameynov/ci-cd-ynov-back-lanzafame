@@ -1,0 +1,34 @@
+.idea/
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environnements
+.env
+
+# Docker
+*.local
+docker-compose.override.yml
+
+# Systèmes
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Tests
+coverage/
+.nyc_output/
+
+# Build
+dist/
+build/
+
+# Vercel
+.vercel/
