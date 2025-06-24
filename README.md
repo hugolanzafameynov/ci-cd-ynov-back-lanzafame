@@ -108,3 +108,46 @@ Ce projet propose une API Node.js sécurisée pour la gestion d’utilisateurs, 
 - Les routes sensibles sont protégées par JWT et vérification du rôle admin
 - Les champs sensibles (`password`, `__v`) sont exclus des réponses API
 - Les routes sont versionnées (`/v1/...`)
+
+## Tests automatisés
+
+### Lancer les tests
+```bash
+npm test
+```
+
+### Tests inclus
+L'API dispose d'une suite de tests complète couvrant tous les endpoints :
+
+**Tests d'authentification :**
+- Login admin valide
+- Login avec mauvais mot de passe
+- Login avec utilisateur inexistant
+
+**Tests de création d'utilisateur :**
+- Création réussie d'un utilisateur
+- Validation des champs requis (username, password)
+- Gestion des utilisateurs en double
+- Exclusion du mot de passe dans les réponses
+- Support des caractères spéciaux dans le username
+
+**Tests de récupération d'utilisateurs :**
+- Accès refusé sans authentification
+- Accès refusé pour les utilisateurs non-admin
+- Récupération réussie avec token admin
+- Vérification que les mots de passe ne sont jamais exposés
+
+**Tests de suppression d'utilisateur :**
+- Suppression réussie avec token admin
+- Accès refusé sans token
+- Accès refusé pour les utilisateurs non-admin
+- Gestion des utilisateurs inexistants
+- Protection contre l'auto-suppression de l'admin
+
+**Tests d'edge cases :**
+- Caractères spéciaux dans les usernames
+- Tentative d'auto-suppression de l'admin
+- Messages d'erreur spécifiques
+
+### CI/CD avec GitHub Actions
+Les tests sont exécutés automatiquement à chaque push ou pull request via GitHub Actions, garantissant la qualité du code avant déploiement.
