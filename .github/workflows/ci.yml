@@ -22,7 +22,7 @@ jobs:
           --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")' --username root --password example --authenticationDatabase admin"
           --health-interval 10s --health-timeout 5s --health-retries 5
     env:
-      MONGO_URI: mongodb://root:example@localhost:27017/myapp?authSource=admin
+      DATABASE_URL: mongodb://root:example@localhost:27017/myapp?authSource=admin
       JWT_SECRET: secret
     steps:
       - uses: actions/checkout@v4
