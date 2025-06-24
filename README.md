@@ -144,10 +144,5 @@ L'API dispose d'une suite de tests complète couvrant tous les endpoints :
 - Gestion des utilisateurs inexistants
 - Protection contre l'auto-suppression de l'admin
 
-**Tests d'edge cases :**
-- Caractères spéciaux dans les usernames
-- Tentative d'auto-suppression de l'admin
-- Messages d'erreur spécifiques
-
 ### CI/CD avec GitHub Actions
 Les tests sont exécutés automatiquement à chaque push ou pull request via GitHub Actions, garantissant la qualité du code avant déploiement.
