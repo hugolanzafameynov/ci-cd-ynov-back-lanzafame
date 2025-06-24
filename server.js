@@ -9,22 +9,26 @@ const adminOnly = require('./src/middleware/adminOnly');
 dotenv.config();
 
 const app = express();
+const databaseUrl = process.env.DATABASE_URL;
 const port = 4000;
 
 app.use(cors());
 app.use(express.json());
 
-// Connexion à MongoDB
-const databaseUrl = process.env.DATABASE_URL;
+if (mongoose.connection.readyState === 0) {
+  const mongoConfig = {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  };
 
-mongoose.connect(databaseUrl, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('Connected to MongoDB');
-}).catch((err) => {
-  console.error('MongoDB connection error:', err);
-});
+  mongoose.connect(databaseUrl, mongoConfig)
+    .then(() => {
+      console.log('Connected to MongoDB');
+    })
+    .catch((err) => {
+      console.error('MongoDB connection error:', err.message);
+    });
+}
 
 // Route POST pour ajouter un user (publique)
 app.post('/v1/users', addUser);
@@ -35,6 +39,7 @@ app.delete('/v1/users/:id', auth, adminOnly, deleteUser);
 // Route POST pour login
 app.post('/v1/login', login);
 
+// Démarrage du serveur (uniquement en local/Docker, pas sur Vercel/Serverless)
 if (require.main === module) {
   app.listen(port, () => {
     console.log(`Serveur démarré sur http://localhost:${port}`);
