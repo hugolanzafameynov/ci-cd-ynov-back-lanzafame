@@ -17,10 +17,13 @@ const deleteUser = async (req, res, next) => {
     try {
         const { id } = req.params;
         // L'admin ne peut pas se supprimer lui-même
-        if (req.user && req.user._id === id) {
+        if (req.user && req.user._id.toString() === id) {
             return res.status(403).json({ message: "Vous ne pouvez pas vous supprimer vous-même." });
         }
-        await User.findByIdAndDelete(id);
+        const deletedUser = await User.findByIdAndDelete(id);
+        if (!deletedUser) {
+            return res.status(404).json({ message: "Utilisateur non trouvé." });
+        }
         return res.status(200).json({ message: "Utilisateur supprimé." });
     } catch (error) {
         return next(error);

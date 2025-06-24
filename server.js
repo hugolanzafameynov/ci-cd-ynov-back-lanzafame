@@ -35,6 +35,10 @@ app.delete('/v1/users/:id', auth, adminOnly, deleteUser);
 // Route POST pour login
 app.post('/v1/login', login);
 
-app.listen(port, () => {
+if (require.main === module) {
+  app.listen(port, () => {
     console.log(`Serveur démarré sur http://localhost:${port}`);
-});
+  });
+}
+
+module.exports = app; // Exporter l'application pour les tests
