@@ -46,8 +46,8 @@ jobs:
       
       - name: Set environment variables for tests
         run: |
+          echo "DATABASE_URL=mongodb://root:root@localhost:27017/myapp?authSource=admin" >> $GITHUB_ENV
           echo "JWT_SECRET=test-secret-key" >> $GITHUB_ENV
-          echo "MONGODB_URL=mongodb://root:root@localhost:27017/myapp?authSource=admin" >> $GITHUB_ENV
       
       - name: Wait for MongoDB to be ready
         run: |
