@@ -17,15 +17,17 @@ services:
     environment:
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      PYTHONPATH: /usr/src/app
     ports:
       - "4000:4000"
     depends_on:
       - mongodb
   init-admin:
     build: .
-    command: ["node", "src/init-admin.js"]
+    command: ["python", "src/init_admin.py"]
     environment:
       DATABASE_URL: ${DATABASE_URL}
+      PYTHONPATH: /usr/src/app
     depends_on:
       - mongodb
     restart: "no"

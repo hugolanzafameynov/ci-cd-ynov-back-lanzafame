@@ -2,19 +2,18 @@
   "version": 2,
   "builds": [
     { 
-      "src": "server.js",
-      "use": "@vercel/node",
-      "config": { "includesFiles": ["dist/**"] }
+      "src": "server.py",
+      "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/server.js"
+      "dest": "/server.py"
     }
   ],
   "git": {
-    "DeployementEnabled": {
+    "deployementEnabled": {
       "main": false
     }
   }
