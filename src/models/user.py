@@ -22,21 +22,6 @@ class User(BaseModel):
         }
     )
     
-class User(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_schema_extra={
-            "example": {
-                "username": "test",
-                "password": "test123",
-                "role": "user",
-                "name": "test",
-                "lastName": "lasttest"
-            }
-        }
-    )
-    
     id: Optional[str] = Field(default=None, alias="_id")
     username: str = Field(..., min_length=1)
     password: str = Field(..., min_length=1)
