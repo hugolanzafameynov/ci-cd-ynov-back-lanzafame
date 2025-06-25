@@ -36,8 +36,8 @@ class TestAuthentification:
     def test_login_admin_success(self):
         """POST /v1/login doit renvoyer 200 avec admin"""
         response = client.post("/v1/login", json={
-            "username": "admin",
-            "password": "admin123"
+            "username": "loise.fenoll@ynov.com",
+            "password": "PvdrTAzTeR247sDnAZBr"
         })
         print(f"Login response status: {response.status_code}")
         print(f"Login response body: {response.text}")
@@ -127,8 +127,8 @@ class TestGetUsers:
         """GET /v1/users avec token admin doit renvoyer 200 et la liste des utilisateurs"""
         # Se connecter en tant qu'admin
         login_response = client.post("/v1/login", json={
-            "username": "admin",
-            "password": "admin123"
+            "username": "loise.fenoll@ynov.com",
+            "password": "PvdrTAzTeR247sDnAZBr"
         })
         
         if login_response.status_code == 200:
@@ -145,8 +145,8 @@ class TestGetUsers:
         """GET /v1/users ne doit jamais renvoyer les mots de passe"""
         # Se connecter en tant qu'admin
         login_response = client.post("/v1/login", json={
-            "username": "admin",
-            "password": "admin123"
+            "username": "loise.fenoll@ynov.com",
+            "password": "PvdrTAzTeR247sDnAZBr"
         })
         
         if login_response.status_code == 200:
@@ -174,8 +174,8 @@ class TestDeleteUser:
         
         # Se connecter en tant qu'admin
         login_response = client.post("/v1/login", json={
-            "username": "admin",
-            "password": "admin123"
+            "username": "loise.fenoll@ynov.com",
+            "password": "PvdrTAzTeR247sDnAZBr"
         })
         
         if create_response.status_code == 201 and login_response.status_code == 200:
@@ -220,8 +220,8 @@ class TestDeleteUser:
         """DELETE /v1/users/:id admin par lui-même doit renvoyer 403"""
         # Se connecter en tant qu'admin
         login_response = client.post("/v1/login", json={
-            "username": "admin",
-            "password": "admin123"
+            "username": "loise.fenoll@ynov.com",
+            "password": "PvdrTAzTeR247sDnAZBr"
         })
         
         if login_response.status_code == 200:
