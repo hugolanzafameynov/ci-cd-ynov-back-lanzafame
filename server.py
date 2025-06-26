@@ -65,7 +65,7 @@ async def root():
     return {"message": "API Backend Ynov - Python FastAPI"}
 
 # Handler pour Vercel
-handler = app
+app_handler = app
 
 if __name__ == "__main__":
     uvicorn.run("server:app", host="0.0.0.0", port=4000, reload=True)
