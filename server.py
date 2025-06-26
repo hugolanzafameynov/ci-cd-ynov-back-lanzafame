@@ -14,8 +14,8 @@ from src.middleware.auth import admin_required
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    await init_db()
+    # Startup - Ne pas initialiser la DB sur Vercel au startup
+    # await init_db()  # Commenté pour éviter les timeouts sur Vercel
     yield
     # Shutdown (si nécessaire)
 

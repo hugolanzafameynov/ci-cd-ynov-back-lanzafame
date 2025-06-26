@@ -4,9 +4,9 @@
     {
       "src": "server.py",
       "use": "@vercel/python",
-      "config": { 
+      "config": {
         "maxLambdaSize": "15mb",
-        "runtime": "python3.9"
+        "runtime": "python3.11"
       }
     }
   ],
@@ -16,9 +16,9 @@
       "dest": "server.py"
     }
   ],
-  "git": {
-    "deploymentEnabled": {
-      "main": false
+  "functions": {
+    "server.py": {
+      "maxDuration": 30
     }
   }
 }
