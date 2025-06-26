@@ -1,57 +1,60 @@
 import os
 import sys
 import asyncio
-from motor.motor_asyncio import AsyncIOMotorClient
-from datetime import datetime
 from dotenv import load_dotenv
 
-# Ajouter le répertoire parent au chemin Python
+load_dotenv()
+
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy import select
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.models.user import get_password_hash
-
-load_dotenv()
+from src.models.user import get_password_hash, UserRole, User
+from src.database import Base
 
 async def create_admin():
     """Créer un utilisateur admin par défaut"""
     database_url = os.getenv("DATABASE_URL")
     
-    # Connexion à MongoDB
-    client = AsyncIOMotorClient(database_url)
+    # Créer le moteur et les tables
+    engine = create_async_engine(database_url)
+    async_session = async_sessionmaker(engine, class_=AsyncSession)
     
-    # Extraire le nom de la base de données
-    if "?" in database_url:
-        db_name = database_url.split("/")[-1].split("?")[0]
-    else:
-        db_name = database_url.split("/")[-1]
-        
-    if not db_name:
-        db_name = "myapp"
-        
-    db = client[db_name]
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     
-    try:
-        # Vérifier si l'admin existe déjà
-        admin = await db.users.find_one({"username": "loise.fenoll@ynov.com"})
-        
-        if not admin:
-            # Créer l'utilisateur admin
-            admin_user = {
-                "username": "loise.fenoll@ynov.com",
-                "password": get_password_hash("PvdrTAzTeR247sDnAZBr"),
-                "role": "admin",
-                "name": "Admin",
-                "lastName": "User",
-                "createdAt": datetime.now()
-            }
+    async with async_session() as session:
+        try:
+            # Vérifier si l'admin existe déjà
+            result = await session.execute(
+                select(User).where(User.username == "loise.fenoll@ynov.com")
+            )
+            admin = result.scalar_one_or_none()
             
-            await db.users.insert_one(admin_user)
-            print("Admin user created.")
-        else:
-            print("Admin user already exists.")
-            
-    finally:
-        client.close()
+            if not admin:
+                # Créer l'utilisateur admin
+                admin_user = User(
+                    username="loise.fenoll@ynov.com",
+                    password=get_password_hash("PvdrTAzTeR247sDnAZBr"),
+                    role=UserRole.admin,
+                    name="Admin",
+                    last_name="User"
+                )
+                
+                session.add(admin_user)
+                await session.commit()
+                print("Admin user created successfully.")
+            else:
+                print("Admin user already exists.")
+                
+        except Exception as e:
+            print(f"Error creating admin user: {e}")
+            await session.rollback()
+        finally:
+            await session.close()
+    
+    await engine.dispose()
 
 if __name__ == "__main__":
     asyncio.run(create_admin())

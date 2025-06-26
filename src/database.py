@@ -1,45 +1,47 @@
 import os
-from motor.motor_asyncio import AsyncIOMotorClient
-from pymongo.errors import ConnectionFailure
-import asyncio
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
 
-class Database:
-    client: AsyncIOMotorClient = None
-    database = None
+# Configuration de la base de données
+DATABASE_URL = os.getenv("DATABASE_URL")
 
-db = Database()
+# Configuration du moteur avec options pour Aiven
+engine_kwargs = {
+    "echo": True,
+    "pool_pre_ping": True,  # Vérifie la connexion avant utilisation
+    "pool_recycle": 3600,   # Recycle les connexions après 1h
+}
 
-async def get_database():
-    return db.database
+# Création du moteur SQLAlchemy async
+engine = create_async_engine(DATABASE_URL, **engine_kwargs)
+AsyncSessionLocal = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
+Base = declarative_base()
+
+# Fonctions utilitaires
 async def init_db():
-    """Initialiser la connexion à MongoDB"""
-    database_url = os.getenv("DATABASE_URL", "mongodb://root:example@mongodb:27017/myapp?authSource=admin")
-    
+    """Initialiser la base de données"""
     try:
-        # Créer le client MongoDB
-        db.client = AsyncIOMotorClient(database_url)
+        # Importer les modèles pour s'assurer qu'ils sont enregistrés
+        from src.models.user import User  # Import nécessaire pour créer les tables
         
-        # Test de la connexion
-        await db.client.admin.command('ping')
-        print("Connected to MongoDB")
+        # Créer les tables si elles n'existent pas
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+        print("Connected to MySQL database and tables created")
         
-        # Extraire le nom de la base de données de l'URL
-        if "?" in database_url:
-            db_name = database_url.split("/")[-1].split("?")[0]
-        else:
-            db_name = database_url.split("/")[-1]
-            
-        if not db_name:
-            db_name = "myapp"
-            
-        db.database = db.client[db_name]
-        
-    except ConnectionFailure as e:
-        print(f"MongoDB connection error: {e}")
+    except Exception as e:
+        print(f"Database connection error: {e}")
         raise e
 
 async def close_db():
-    """Fermer la connexion à MongoDB"""
-    if db.client:
-        db.client.close()
+    """Fermer la connexion à la base de données"""
+    await engine.dispose()
+
+async def get_async_session():
+    """Obtenir une session async SQLAlchemy"""
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()

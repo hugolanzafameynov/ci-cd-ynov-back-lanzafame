@@ -1,33 +1,51 @@
 version: '3.8'
+
 services:
-  mongodb:
-    image: mongo:6.0
-    container_name: mongodb
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: myapp
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: myapp
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: password
     ports:
-      - "27017:27017"
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   api:
     build: .
-    container_name: node-api
+    container_name: fastapi_app
     restart: always
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      JWT_SECRET: ${JWT_SECRET}
-      PYTHONPATH: /usr/src/app
+      - DATABASE_URL=mysql+aiomysql://appuser:password@mysql:3306/myapp
+      - JWT_SECRET=secret-key-for-development
     ports:
       - "4000:4000"
     depends_on:
-      - mongodb
-  init-admin:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - .:/usr/src/app
+    command: uvicorn server:app --host 0.0.0.0 --port 4000 --reload
+
+  test_backend:
     build: .
-    command: ["python", "src/init_admin.py"]
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      PYTHONPATH: /usr/src/app
+      - DATABASE_URL=mysql+aiomysql://appuser:password@mysql:3306/myapp
+      - JWT_SECRET=test-secret-key
     depends_on:
-      - mongodb
-    restart: "no"
+      mysql:
+        condition: service_healthy
+    volumes:
+      - .:/usr/src/app
+    command: tail -f /dev/null
+
+volumes:
+  mysql_data:

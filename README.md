@@ -1,24 +1,24 @@
-# Backend Python FastAPI + MongoDB (CI/CD & Production)
+# Backend Python FastAPI + MySQL (CI/CD & Production)
 
 ## Présentation
-Ce projet propose une API Python FastAPI sécurisée pour la gestion d'utilisateurs, avec une base MongoDB. Il est prêt pour :
-- Le développement et les tests en local/CI avec Docker Compose (base MongoDB locale)
-- Le déploiement en production sur une plateforme cloud avec MongoDB Atlas
+Ce projet propose une **API Python FastAPI sécurisée** pour la gestion d'utilisateurs, avec une base de données **MySQL**. Il est prêt pour :
+- Le développement et les tests en local avec Docker Compose (base MySQL locale)
+- Le déploiement en production avec **Aiven MySQL** (service cloud gratuit)
 
 ## Fonctionnalités principales
-- Authentification JWT (login)
-- Gestion des utilisateurs (créer, voir, supprimer)
-- Rôles (admin/user)
-- Sécurité des routes (adminOnly)
-- Versionnement d'API (`/v1/...`)
-- Documentation automatique avec Swagger/OpenAPI accessible sur `/docs`
+- **Authentification JWT** (login sécurisé)
+- **Gestion des utilisateurs** (créer, voir, supprimer)
+- **Système de rôles** (admin/user)
+- **Sécurité des routes** (protection admin)
+- **Documentation automatique** avec Swagger/OpenAPI sur `/docs`
+- **Base de données MySQL** avec SQLAlchemy ORM
 
 ## Technologies utilisées
 - **FastAPI** : Framework web moderne et rapide pour Python
-- **Motor** : Driver MongoDB asynchrone pour Python
-- **Pydantic** : Validation de données et sérialisation
+- **SQLAlchemy** : ORM pour MySQL avec support asynchrone
+- **Aiven MySQL** : Base de données MySQL cloud gratuite
 - **PyJWT** : Gestion des tokens JWT
-- **Passlib** : Hachage sécurisé des mots de passe
+- **Passlib** : Hachage sécurisé des mots de passe (bcrypt)
 - **Uvicorn** : Serveur ASGI pour FastAPI
 - **Pytest** : Framework de tests
 
@@ -26,64 +26,74 @@ Ce projet propose une API Python FastAPI sécurisée pour la gestion d'utilisate
 ```
 .
 ├── src/
-│   ├── controllers/        # Contrôleurs FastAPI
-│   ├── middleware/         # Middlewares d'authentification/autorisation
-│   ├── models/             # Modèles Pydantic
-│   ├── database.py         # Configuration MongoDB avec Motor
-│   └── init_admin.py       # Script Python pour initialiser l'admin
+│   ├── controllers/             
+│   │   └── user_controller.py  # Contrôleur User
+│   ├── middleware/         
+│   │   └── auth.py             # Middlewares d'authentification
+│   ├── models/
+│   │   └── user.py             # Modèle User SQLAlchemy
+│   ├── database.py             # Configuration MySQL avec SQLAlchemy
+│   └── init_admin.py           # Initialisation de l'admin par default
 ├── tests/
-│   └── test_api.py         # Tests avec pytest
-├── .env                    # Variables d'environnement locales (à créer)
-├── .env.example            # Exemple de configuration d'environnement
-├── Dockerfile              # Image Python pour l'API
-├── docker-compose.yml      # Orchestration Docker (API + MongoDB pour tests)
-├── server.py                 # Point d'entrée de l'API FastAPI
-├── requirements.txt        # Dépendances Python
-└── README.md               # Documentation
+│   └── test_api.py             # Tests avec pytest
+├── .env                        # Variables d'environnement (à créer)
+├── .env.example                # Template de configuration
+├── .gitignore                  # Liste de fichiers ignorés par git
+├── Dockerfile                  # Image Python pour l'API
+├── docker-compose.yml          # Orchestration Docker (API + MySQL pour tests)
+├── README.md                   # Cette documentation
+├── requirements.txt            # Dépendances Python
+└── server.py                   # Point d'entrée de l'API FastAPI
+
 ```
 
 ## Installation et démarrage
 
 ### Prérequis
-- Docker et Docker Compose
-- Python 3.11+ (pour le développement local sans Docker)
+- Docker et Docker Compose (pour le développement local)
+- Python 3.10+ (optionnel, pour le développement local sans Docker)
+- Compte Aiven gratuit (pour la production)
 
-### Démarrage avec Docker Compose (recommandé)
-1. Cloner le projet
-2. Copier le fichier d'environnement et configurer les variables:
+### Configuration
+
+1. **Cloner le projet**
+   ```bash
+   git clone <votre-repo>
+   cd ci-cd-back-ynov-lanzafame
+   ```
+
+2. **Configurer les variables d'environnement**
    ```bash
    cp .env.example .env
    ```
-3. Démarrer les services :
-   ```bash
-   docker-compose up --build
-   ```
-4. L'API sera accessible sur `http://localhost:4000`
-5. La documentation interactive sera sur `http://localhost:4000/docs`
 
-## Gestion claire des environnements
+3. **Choisir votre mode de déploiement :**
 
-### 1. Production (Vercel + MongoDB Atlas)
-- **Variables d'environnement à configurer** :
-  - `DATABASE_URL` = URL de MongoDB Atlas (ex: `mongodb+srv://user:pass@cluster.mongodb.net/dbname`)
-  - `JWT_SECRET` = clé secrète forte pour JWT
-
-### 2. Développement local & CI (tests)
-- **Base de données** : MongoDB tourne en local dans un conteneur Docker
-- **Initialisation automatique** : utilisateur admin est créé automatiquement avec les identifiants :
-    - **Username** : `loise.fenoll@ynov.com`
-    - **Password** : `PvdrTAzTeR247sDnAZBr`
-- **Variables d'environnement** :
-  - `DATABASE_URL` = URL de MongoDB local (ex: `mongodb://root:example@mongodb:27017/myapp?authSource=admin`)
-  - `JWT_SECRET` = clé secrète forte pour JWT
-
-Pour réinitialiser la base de données :
+#### Mode développement local (Docker)
 ```bash
-docker-compose down -v
+# Dans .env, utilisez cette configuration :
+DATABASE_URL=mysql+aiomysql://root:password@localhost:3306/myapp
+JWT_SECRET=your-secret-key
+
+# Démarrer avec Docker
 docker-compose up --build
 ```
 
-> **Astuce** : Pour passer de l’environnement de test/local à la production, il suffit de changer la variable `DATABASE_URL` (aucun changement de code nécessaire).
+#### Mode production (Aiven MySQL)
+```bash
+# 1. Créez un compte sur https://aiven.io/ (300$ gratuit)
+# 2. Créez un service MySQL (plan Hobbyist)
+# 3. Copiez votre URL de connexion
+# 4. Mettez à jour votre .env :
+DATABASE_URL=mysql+aiomysql://avnadmin:VOTRE_PASSWORD@mysql-xxx.aivencloud.com:PORT/defaultdb
+JWT_SECRET=your-very-secret-key
+
+# 5. Créez l'utilisateur admin sur Aiven
+python3 src/init_admin.py
+
+# 6. Lancez le serveur
+python3 server.py
+```
 
 ## Endpoints de l'API
 
@@ -96,6 +106,14 @@ docker-compose up --build
 - `GET /v1/users` - Lister tous les utilisateurs
 - `DELETE /v1/users/{user_id}` - Supprimer un utilisateur
 
+## Utilisateur administrateur par défaut
+
+L'application crée automatiquement un utilisateur administrateur lors du premier démarrage :
+
+### Identifiants admin par défaut
+- **Username** : `loise.fenoll@ynov.com`
+- **Password** : `PvdrTAzTeR247sDnAZBr`
+
 ## Exemple de requêtes API
 - **Créer un utilisateur (public)**
   ```http
@@ -105,7 +123,7 @@ docker-compose up --build
     "username": "nouveluser",
     "password": "motdepasse",
     "name": "Prénom",
-    "lastName": "Nom"
+    "last_name": "Nom"
   }
   ```
 - **Login**
@@ -113,8 +131,8 @@ docker-compose up --build
   POST /v1/login
   Content-Type: application/json
   {
-    "username": "admin",
-    "password": "admin123"
+    "username": "loise.fenoll@ynov.com",
+    "password": "PvdrTAzTeR247sDnAZBr"
   }
   ```
 - **Voir tous les utilisateurs** (admin seulement)
@@ -155,7 +173,7 @@ docker-compose exec api pytest tests/
 - Gestion des utilisateurs inexistants
 - Protection contre l'auto-suppression de l'admin
 
-## Documentation interactive
-Une fois l'API démarrée, vous pouvez accéder à :
-- **Swagger UI** : `http://localhost:4000/docs`
-- **ReDoc** : `http://localhost:4000/redoc`
+### Accès à l'API
+- **API** : `http://localhost:4000`
+- **Documentation interactive** : `http://localhost:4000/docs`
+- **Alternative ReDoc** : `http://localhost:4000/redoc`

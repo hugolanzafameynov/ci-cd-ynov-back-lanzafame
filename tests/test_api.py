@@ -1,12 +1,9 @@
 import pytest
-import asyncio
 import time
-from httpx import AsyncClient
 from fastapi.testclient import TestClient
 import os
 import sys
 
-# Ajouter le répertoire parent au path pour les imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from server import app
@@ -14,7 +11,6 @@ from server import app
 client = TestClient(app)
 
 class TestAPI:
-    
     def test_root_endpoint(self):
         """Test de l'endpoint racine"""
         response = client.get("/")

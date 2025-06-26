@@ -14,7 +14,7 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # Job pour les tests (toujours exécuté)
+  # Job pour les tests avec MySQL local (toujours exécuté)
   test:
     permissions:
       contents: read
@@ -22,13 +22,20 @@ jobs:
     runs-on: ubuntu-latest
     
     services:
-      mongodb:
-        image: mongo:6.0
+      mysql:
+        image: mysql:8.0
         ports:
-          - 27017:27017
+          - 3306:3306
         env:
-          MONGO_INITDB_ROOT_USERNAME: root
-          MONGO_INITDB_ROOT_PASSWORD: root
+          MYSQL_ROOT_PASSWORD: testpassword
+          MYSQL_DATABASE: myapp
+          MYSQL_USER: testuser
+          MYSQL_PASSWORD: testpassword
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
     
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -45,12 +52,16 @@ jobs:
       
       - name: Set environment variables for tests
         run: |
-          echo "DATABASE_URL=mongodb://root:root@localhost:27017/myapp?authSource=admin" >> $GITHUB_ENV
+          echo "DATABASE_URL=mysql+aiomysql://testuser:testpassword@localhost:3306/myapp" >> $GITHUB_ENV
           echo "JWT_SECRET=test-secret-key" >> $GITHUB_ENV
       
-      - name: Wait for MongoDB to be ready
+      - name: Wait for MySQL to be ready
         run: |
-          sleep 10
+          sleep 15
+          # Tester la connexion MySQL
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
+          mysql -h localhost -u testuser -ptestpassword -e "SELECT 1;" myapp
 
       - name: Initialize admin user
         run: |
@@ -61,6 +72,10 @@ jobs:
           pytest tests/ -v --disable-warnings
 
   deploy:
+    # Déploiement en production avec Aiven MySQL
+    # Variables d'environnement à configurer dans Vercel:
+    # - DATABASE_URL: mysql+aiomysql://avnadmin:PASSWORD@mysql-xxx.aivencloud.com:PORT/defaultdb
+    # - JWT_SECRET: your-production-jwt-secret
     needs: test
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     permissions:
