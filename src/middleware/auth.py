@@ -11,7 +11,7 @@ from src.database import get_async_session
 from src.models.user import User
 
 # Configuration JWT
-SECRET_KEY = os.getenv("JWT_SECRET", "secret")
+SECRET_KEY = os.getenv("JWT_SECRET")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_DAYS = 1
 

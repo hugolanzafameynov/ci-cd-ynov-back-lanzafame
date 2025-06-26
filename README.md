@@ -164,14 +164,12 @@ docker-compose exec api pytest tests/
 - Accès refusé sans authentification
 - Accès refusé pour les utilisateurs non-admin
 - Récupération réussie avec token admin
-- Vérification que les mots de passe ne sont jamais exposés
 
 **Tests de suppression d'utilisateur :**
 - Suppression réussie avec token admin
 - Accès refusé sans token
 - Accès refusé pour les utilisateurs non-admin
 - Gestion des utilisateurs inexistants
-- Protection contre l'auto-suppression de l'admin
 
 ### Accès à l'API
 - **API** : `http://localhost:4000`

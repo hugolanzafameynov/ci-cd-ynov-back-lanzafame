@@ -15,10 +15,10 @@ from src.database import Base
 
 async def create_admin():
     """Créer un utilisateur admin par défaut"""
-    database_url = os.getenv("DATABASE_URL")
+    DATABASE_URL = os.getenv("DATABASE_URL")
     
     # Créer le moteur et les tables
-    engine = create_async_engine(database_url)
+    engine = create_async_engine(DATABASE_URL)
     async_session = async_sessionmaker(engine, class_=AsyncSession)
     
     async with engine.begin() as conn:

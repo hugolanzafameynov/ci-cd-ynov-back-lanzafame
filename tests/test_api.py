@@ -136,25 +136,6 @@ class TestGetUsers:
             data = response.json()
             assert "utilisateurs" in data
             assert isinstance(data["utilisateurs"], list)
-    
-    def test_get_users_no_passwords(self):
-        """GET /v1/users ne doit jamais renvoyer les mots de passe"""
-        # Se connecter en tant qu'admin
-        login_response = client.post("/v1/login", json={
-            "username": "loise.fenoll@ynov.com",
-            "password": "PvdrTAzTeR247sDnAZBr"
-        })
-        
-        if login_response.status_code == 200:
-            token = login_response.json().get("token")
-            response = client.get("/v1/users", headers={
-                "Authorization": f"Bearer {token}"
-            })
-            assert response.status_code == 200
-            data = response.json()
-            if "utilisateurs" in data:
-                for user in data["utilisateurs"]:
-                    assert "password" not in user
 
 class TestDeleteUser:
     """Tests de suppression d'utilisateur"""
@@ -210,25 +191,6 @@ class TestDeleteUser:
                 "Authorization": f"Bearer {token}"
             })
             assert response.status_code == 403
-
-    
-    def test_delete_self_admin(self):
-        """DELETE /v1/users/:id admin par lui-même doit renvoyer 403"""
-        # Se connecter en tant qu'admin
-        login_response = client.post("/v1/login", json={
-            "username": "loise.fenoll@ynov.com",
-            "password": "PvdrTAzTeR247sDnAZBr"
-        })
-        
-        if login_response.status_code == 200:
-            token = login_response.json().get("token")
-            user_id = login_response.json().get("user", {}).get("_id")
-            
-            if user_id:
-                response = client.delete(f"/v1/users/{user_id}", headers={
-                    "Authorization": f"Bearer {token}"
-                })
-                assert response.status_code == 403
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

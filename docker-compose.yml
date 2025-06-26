@@ -8,7 +8,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_DATABASE: myapp
-      MYSQL_USER: appuser
+      MYSQL_USER: root
       MYSQL_PASSWORD: password
     ports:
       - "3306:3306"
@@ -24,7 +24,7 @@ services:
     container_name: fastapi_app
     restart: always
     environment:
-      - DATABASE_URL=mysql+aiomysql://appuser:password@mysql:3306/myapp
+      - DATABASE_URL=mysql+aiomysql://root:password@localhost:3306/myapp
       - JWT_SECRET=secret-key-for-development
     ports:
       - "4000:4000"
@@ -34,18 +34,6 @@ services:
     volumes:
       - .:/usr/src/app
     command: uvicorn server:app --host 0.0.0.0 --port 4000 --reload
-
-  test_backend:
-    build: .
-    environment:
-      - DATABASE_URL=mysql+aiomysql://appuser:password@mysql:3306/myapp
-      - JWT_SECRET=test-secret-key
-    depends_on:
-      mysql:
-        condition: service_healthy
-    volumes:
-      - .:/usr/src/app
-    command: tail -f /dev/null
 
 volumes:
   mysql_data:
