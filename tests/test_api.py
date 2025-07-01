@@ -19,12 +19,13 @@ class TestAPI:
     
     def test_database_connection(self):
         """Test de connexion à la base de données via un endpoint simple"""
-        # Test pour vérifier que la DB fonctionne
         response = client.get("/v1/users")
         print(f"Database test status: {response.status_code}")
         print(f"Database test response: {response.text}")
-        # Doit retourner 401/403 (pas de token) et pas 500 (erreur DB)
-        assert response.status_code in [401, 403], f"Expected 401/403 but got {response.status_code}: {response.text}"
+        assert response.status_code == 200, f"Expected 200 but got {response.status_code}: {response.text}"
+        data = response.json()
+        assert "utilisateurs" in data, f"Response should contain 'utilisateurs' key: {response.text}"
+        assert isinstance(data["utilisateurs"], list), f"'utilisateurs' should be a list: {response.text}"
 
 class TestAuthentification:
     """Tests d'authentification"""
