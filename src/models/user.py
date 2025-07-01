@@ -2,7 +2,7 @@ from passlib.context import CryptContext
 import enum
 
 # Imports SQLAlchemy pour le modèle de base de données
-from sqlalchemy import Column, Integer, String, DateTime, Enum
+from sqlalchemy import Column, Integer, String, DateTime, Enum, Date
 from sqlalchemy.sql import func
 from src.database import Base
 
@@ -24,6 +24,26 @@ class User(Base):
     name = Column(String(100), nullable=True)
     last_name = Column(String(100), nullable=True)
     created_at = Column(DateTime, server_default=func.now())
+    birthdate = Column(String(20), nullable=True)  # Format ISO ou YYYY-MM-DD
+    city = Column(String(100), nullable=True)
+    postal_code = Column(String(20), nullable=True)
+
+    def to_camel_dict(self, public_only=True):
+        d = {
+            "_id": self.id,
+            "username": self.username,
+            "role": self.role.value if hasattr(self.role, 'value') else self.role,
+            "name": self.name,
+            "lastName": self.last_name,
+            "createdAt": self.created_at
+        }
+        if not public_only:
+            d.update({
+                "birthdate": self.birthdate,
+                "city": self.city,
+                "postalCode": self.postal_code
+            })
+        return d
 
 # FONCTIONS UTILITAIRES
 def verify_password(plain_password: str, hashed_password: str) -> bool:

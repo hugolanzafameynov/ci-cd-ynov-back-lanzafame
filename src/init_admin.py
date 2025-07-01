@@ -38,8 +38,8 @@ async def create_admin():
                     username="loise.fenoll@ynov.com",
                     password=get_password_hash("PvdrTAzTeR247sDnAZBr"),
                     role=UserRole.admin,
-                    name="Admin",
-                    last_name="User"
+                    name="Loise",
+                    last_name="Fenoll"
                 )
                 
                 session.add(admin_user)
